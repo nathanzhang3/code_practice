@@ -1,7 +1,5 @@
-# code_practice
+# Code Test (Data Analyst)
 
-Code Test (Data Analyst)
- 
 The goal of the code test project is to write a Python program to stream and save a crypto currency’s trading activities on an exchange into a csv file and a database with details as following:
  
  
