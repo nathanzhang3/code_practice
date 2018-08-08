@@ -1,7 +1,6 @@
 import logging
 import time
 import sys
-import csv
 
 from btfxwss import BtfxWss
 from database import DataBase
@@ -41,7 +40,7 @@ class Market(object):
         self.wss.subscribe_to_trades(self.symbol)
         self.wss.subscribe_to_order_book(pair=self.symbol, len=100)
 
-        # Create a database
+        # Initialize a DataBase object
         self.db = DataBase(symbol=self.symbol)
 
     def create_database(self):
@@ -57,26 +56,19 @@ class Market(object):
         self.db.initialize_trade_csv()
         self.db.initialize_quote_csv()
 
-        # Access data from BtfxWss:
-        self.trade_q = self.wss.trades(self.symbol)  # returns a Queue object for the pair.
+        # Access data from BtfxWss and return a Queue object for the pair:
+        self.trade_q = self.wss.trades(self.symbol)
         self.quote_q = self.wss.books(self.symbol)
 
         # Take a snapshot of the orderbook
         self.quote_snapshot = self.quote_q.get()
 
         # Input the snapshot to database
-        db.create_order_book_csv(self.quote_snapshot)
+        self.db.create_quote_csv(self.quote_snapshot)
 
-    def stream_data():
-        # Continue streaming data
-        while True:
-            new_trade = self.trade_q.get()
-            if new_trade[0][0] == 'te':
-                with open('bitfinex_trades_'+self.symbol+'.csv', 'a') as file:
-                    writer = csv.writer(file, delimiter = ',')
-                    writer.writerow(new_trade[0][1])
+    def stream_data(self):
+        new_trade = self.trade_q.get()
+        self.db.update_trade_csv(new_trade)
 
-            new_order = self.quote_q.get()
-            with open('bitfinex_quotes_'+self.symbol+'.csv', 'a') as file:
-                writer = csv.writer(file, delimiter = ',')
-                writer.writerow(new_order[0][0])
+        quote_change = self.quote_q.get()
+        self.db.update_quote_csv(quote_change)
