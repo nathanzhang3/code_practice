@@ -97,8 +97,9 @@ class DataBase(object):
         tableList = self.cur.fetchall()
 
         if (self.trade_tname,) not in tableList:
-            self.cur.execute('CREATE TABLE '+self.trade_tname+'(ID VARCHAR(10),\
-             Timestamp VARCHAR(20), Amount float, Price float)')
+            self.cur.execute('CREATE TABLE '+self.trade_tname+'(Id VARCHAR(10) \
+                NOT NULL, Timestamp VARCHAR(20), Amount float, Price float, \
+                PRIMARY KEY (Id))')
         else:
             self.cur.execute('TRUNCATE TABLE '+self.trade_tname)
 
@@ -114,8 +115,8 @@ class DataBase(object):
         tableList = self.cur.fetchall()
 
         if (self.quote_tname,) not in tableList:
-            self.cur.execute('CREATE TABLE '+self.quote_tname+'(Price float, \
-                Count int, Amount float)')
+            self.cur.execute('CREATE TABLE '+self.quote_tname+'(Price float NOT\
+                NULL, Count int, Amount float, PRIMARY KEY(Price))')
         else:
             self.cur.execute('TRUNCATE TABLE '+self.quote_tname)
 
@@ -142,11 +143,18 @@ class DataBase(object):
                 writer.writerow(new_trade[0][1])
 
     def update_trade_sql(self, new_trade):
+        self.conn = pymysql.connect(host=self.host, user=self.uname,
+                                    port=self.port, passwd=self.pw,
+                                    db=self.dbname)
+
+        self.cur = self.conn.cursor()
+
         if new_trade[0][0] == 'te': # keep only real-time data
             insertStatement = 'INSERT INTO '+self.trade_tname+' (ID, Timestamp,\
-             Amount, Price) VALUES ('+str(new_trade[0][1][0])+','+ \
-             str(new_trade[1])+','+str(new_trade[0][1][2])+','+ \
-             str(new_trade[0][1][3])+')'
+                Amount, Price) VALUES ('+str(new_trade[0][1][0])+','+ \
+                str(new_trade[1])+','+str(new_trade[0][1][2])+','+ \
+                str(new_trade[0][1][3])+')'
+
             self.cur.execute(insertStatement)
 
     def update_quote_csv(self, quote_chg):
@@ -176,7 +184,21 @@ class DataBase(object):
         count = quote_chg[0][0][1]
         amount = quote_chg[0][0][2]
 
+        if count > 0:
+            self.order_book[price] = quote_chg[0][0][1:]
+        elif count == 0:
+            if price in self.order_book.keys():
+                del self.order_book[price]
 
+        self.conn = pymysql.connect(host=self.host, user=self.uname,
+                                    port=self.port, passwd=self.pw,
+                                    db=self.dbname)
+
+        self.cur = self.conn.cursor()
+        updateStatement = 'INSERT INTO '+self.quote_tname+' (Price, Count, \
+            Amount) VALUES ('+str(price)+','+str(count)+','+str(amount)+') ON \
+            DUPLICATE KEY UPDATE Count=VALUES(Count), Amount=VALUES(Amount)'
+        self.cur.execute(updateStatement)
 
     def terminate_sql(self):
         self.conn.close()

@@ -80,3 +80,4 @@ class Market(object):
 
         quote_change = self.quote_q.get()
         self.db.update_quote_csv(quote_change)
+        self.db.update_quote_sql(quote_change)
