@@ -56,6 +56,11 @@ class Market(object):
         self.db.initialize_trade_csv()
         self.db.initialize_quote_csv()
 
+        # Prepare sql database and tables
+        self.db.initialize_sql_db()
+        self.db.initialize_trade_sql()
+        self.db.initialize_quote_sql()
+
         # Access data from BtfxWss and return a Queue object for the pair:
         self.trade_q = self.wss.trades(self.symbol)
         self.quote_q = self.wss.books(self.symbol)
@@ -64,7 +69,9 @@ class Market(object):
         self.quote_snapshot = self.quote_q.get()
 
         # Input the snapshot to database
+        self.db.create_order_book(self.quote_snapshot)
         self.db.create_quote_csv(self.quote_snapshot)
+
 
     def stream_data(self):
         new_trade = self.trade_q.get()
