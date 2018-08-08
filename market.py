@@ -66,16 +66,17 @@ class Market(object):
         self.quote_q = self.wss.books(self.symbol)
 
         # Take a snapshot of the orderbook
-        self.quote_snapshot = self.quote_q.get()
+        quote_snapshot = self.quote_q.get()
 
         # Input the snapshot to database
-        self.db.create_order_book(self.quote_snapshot)
-        self.db.create_quote_csv(self.quote_snapshot)
-
+        self.db.create_order_book(quote_snapshot)
+        self.db.create_quote_csv(quote_snapshot)
+        self.db.create_quote_sql(quote_snapshot)
 
     def stream_data(self):
         new_trade = self.trade_q.get()
         self.db.update_trade_csv(new_trade)
+        self.db.update_trade_sql(new_trade)
 
         quote_change = self.quote_q.get()
         self.db.update_quote_csv(quote_change)
