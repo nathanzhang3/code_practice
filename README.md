@@ -1,6 +1,6 @@
-# Code Test Project
+# crypto_data_streaming
 
-The goal of the project is to write a Python program to stream and save a crypto currency’s trading activities on an exchange into a csv file and a SQL database.
+The goal of the project is to write a Python program to stream and save a crypto currency’s trading activities on an exchange into a csv file and a AWS SQL database. If the connection with crypto exchange is disrupted, notification will be sent as a text message.
 
 
 How to run:
