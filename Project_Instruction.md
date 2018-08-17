@@ -20,7 +20,7 @@ https://bitfinex.readme.io/v2/reference#ws-public-trades
  
  
  
-4.      Each order book event is a change to a specific price layer and its size, we are interested in keeping and reconstructing the entire order book based on each individual change. A snapshot of the initial order book status will be provided to you as a first result from the websocket order book subscription.
+4. Each order book event is a change to a specific price layer and its size, we are interested in keeping and reconstructing the entire order book based on each individual change. A snapshot of the initial order book status will be provided to you as a first result from the websocket order book subscription.
  
 Then you can use the change events and trade events to update the snapshot.
  
